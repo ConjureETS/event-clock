@@ -4,13 +4,14 @@
 			this.drawables = [];
 			this.canvas = canvas;
 			this.context = context || canvas.getContext('2d');
-			this.timerId = -1;
-		};
-
-		draw(){
+			this.timerId = -1
 			this.canvas.width = this.context.width = window.innerWidth*2;
 			this.canvas.height = this.context.height = window.innerHeight*2;
 			this.context.clearRect(0, 0, window.innerWidth, window.innerHeight)
+		};
+
+		draw(){
+			this.context.clearRect(0, 0, this.canvas.width, this.canvas.height)
 			for(var i of this.drawables){
 				i.draw(this.context);
 			}
@@ -44,6 +45,7 @@
 			this.strokeColor = "rgba(17, 17, 17, 1)"
 			this.strokeStyle = "solid"
 			this.fillColor = "rgba(0, 0, 0, 0)"
+			this.scale=scale
 		}
 
 		draw(ctx){
@@ -109,10 +111,29 @@
 				lastMonth = month
 				d.setDate(d.getDate()+1) // increment day by 1
 			}
+			for(var d of dates){
+				//do shit
+				var positionStart = +(d.dateStart - startOfYear) / (endOfYear - startOfYear) * Math.PI * 2 + Math.PI/2
+				var positionEnd = +(d.dateEnd - startOfYear) / (endOfYear - startOfYear) * Math.PI * 2 + Math.PI/2
+				var mx = Math.cos(positionStart)
+				var my = Math.sin(positionStart)
+				var thickness = 10 * this.scale
+
+				ctx.beginPath()
+				ctx.moveTo(this.center.x + mx * (this.radius + thickness), this.center.y + my * (this.radius + thickness))
+				//ctx.lineTo(this.center.x + mx * this.radius, this.center.y + my * this.radius);
+				ctx.arc(this.center.x, this.center.y, this.radius - thickness, positionStart, (d.dateEnd-startOfYear)/(endOfYear-startOfYear) * Math.PI * 2 + Math.PI/2, false);
+				ctx.arc(this.center.x, this.center.y, this.radius + thickness, (d.dateEnd-startOfYear)/(endOfYear-startOfYear) * Math.PI * 2 + Math.PI/2, positionStart, true);
+				ctx.closePath()
+				ctx.fillStyle = `hsla(${Math.floor(positionStart/Math.PI * 180)}, 100%, 50%, 0.5)`
+				ctx.strokeStyle = `hsla(${Math.floor(positionStart/Math.PI * 180)}, 25%, 50%, 1)`
+				ctx.fill();
+				ctx.stroke();
+			}
 		}
 
 		update(){
-		//this.center = {x:window.innerWidth / 2, y:window.innerHeight/2}
+			this.center = {x:window.innerWidth / 2*this.scale, y:window.innerHeight/2*this.scale}
 		}
 	}
 
@@ -134,11 +155,41 @@
 			description: "",
 			dateStart: new Date(2018, 11, 9),
 			dateEnd: new Date(2018, 11, 11)
-		}
+		},{
+			name: "MEGA",
+			description: "",
+			dateStart: new Date(2018, 10, 9),
+			dateEnd: new Date(2018, 10, 11)
+		},{
+			name: "MEGA",
+			description: "",
+			dateStart: new Date(2018, 9, 9),
+			dateEnd: new Date(2018, 9, 11)
+		},{
+			name: "MEGA",
+			description: "",
+			dateStart: new Date(2018, 8, 9),
+			dateEnd: new Date(2018, 8, 11)
+		},{
+			name: "MEGA",
+			description: "",
+			dateStart: new Date(2018, 7, 1),
+			dateEnd: new Date(2018, 7, 31)
+		},{
+			name: "MEGA",
+			description: "",
+			dateStart: new Date(2018, 6, 9),
+			dateEnd: new Date(2018, 6, 21)
+		},{
+			name: "MEGA",
+			description: "",
+			dateStart: new Date(2018, 5, 9),
+			dateEnd: new Date(2018, 5, 17)
+		},
 	];
 
 	var a = new Animator(document.querySelector('canvas'))
-	a.drawables.push(new FullRect("#eeeeee"))
+	//a.drawables.push(new FullRect("#eeeeee"))
 	a.drawables.push(new Clock(1920/2+0.5, 1080/2+0.5, 2))
 	a.start()
 	window.canvas = a.context
